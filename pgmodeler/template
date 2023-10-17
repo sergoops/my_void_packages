@@ -1,0 +1,40 @@
+# Template file for 'pgmodeler'
+pkgname=pgmodeler
+version=1.0.5
+revision=1
+build_style=gnu-configure
+hostmakedepends="pkg-config qt6-base qt6-svg-devel libxml2-devel postgresql-libs-devel"
+makedepends="pkg-config qt6-base qt6-svg-devel libxml2-devel postgresql-libs-devel"
+depends="qt6-svg postgresql-libs libxml2"
+maintainer="sergoops <sergoopsmoskal@gmail.com>"
+short_desc="PostgreSQL modeler app"
+homepage="https://pgmodeler.io"
+license="GPL3"
+distfiles="https://github.com/pgmodeler/pgmodeler/archive/refs/tags/v${version}.tar.gz"
+checksum=461b8493e112e894b40522cd01f02b2b4898f86c4410a9f37259e0d949eb9659
+
+do_configure() {
+	/usr/lib/qt6/bin/qmake6 CONFIG+=release \
+          PREFIX=/usr \
+          CONFDIR=/etc/pgmodeler \
+          PRIVATEBINDIR=/usr/bin \
+          DOCDIR=/usr/share/doc/pgmodeler \
+          SAMPLESDIR=/usr/share/doc/pgmodeler \
+          QMAKE_CXXFLAGS_RELEASE+="${CXXFLAGS} ${CPPFLAGS}" \
+          pgmodeler.pro
+}
+
+do_install() {
+	make INSTALL_ROOT="${DESTDIR}" install
+
+	vinstall assets/conf/pgmodeler_logo.png 644 usr/share/icons/hicolor/64x64/apps/pgmodeler.png
+	vinstall assets/conf/pgmodeler_dbm.png 644 usr/share/icons/hicolor/64x64/mimetypes/pgmodeler-dbm.png
+	vinstall assets/conf/pgmodeler_sch.png 644 usr/share/icons/hicolor/64x64/mimetypes/pgmodeler_sch.png
+	vinstall pgmodeler.appdata.xml 644 usr/share/metainfo/pgmodeler.appdata.xml
+
+	#ln -s "/etc/pgmodeler/example.dbm" "usr/share/doc/$pkgname/example.dbm"
+
+	vmkdir usr/lib/pgmodeler/plugins/
+
+	rm README.md
+}
